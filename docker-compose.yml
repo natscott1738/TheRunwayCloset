@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: runwaycloset_db
+      POSTGRES_USER: runwaycloset_user
+      POSTGRES_PASSWORD: runwaycloset1738
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - runway-network
+
+  redis:
+    image: redis:7
+    networks:
+      - runway-network
+
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: gunicorn runway.wsgi:application --bind 0.0.0.0:8001
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - runway-network
+
+volumes:
+  postgres_data:
+
+networks:
+  runway-network:
+    driver: bridge
+
