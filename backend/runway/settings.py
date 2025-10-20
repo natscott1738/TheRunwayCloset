@@ -26,14 +26,14 @@ env = environ.Env(
 # read .env file, if present
 environ.Env.read_env(BASE_DIR.parent / '.env')
 
-DEBUG = env('DJANGO_DEBUG')
+DEBUG = env.bool('DJANGO_DEBUG', default=False)
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost'])
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!l4z7t&#1_@z6(f2m7w*^9zbtizmc#zqnk)oz437r1&jb1nkeh'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -73,8 +73,12 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+
+    # corsheaders should come before CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',        # keep CommonMiddleware after CorsMiddleware
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
